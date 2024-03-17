@@ -4,7 +4,7 @@ from shutil import copy
 from re import sub
 from yt_dlp import YoutubeDL
 from mutagen.id3 import ID3, APIC
-
+from PIL import Image
 
 def download_audio(url):
     ydl_opts = {
@@ -70,6 +70,11 @@ def preview_download(url):
     thumbnail_url = info_dict['thumbnail']
     ydl.download([thumbnail_url])
 
+def convert_webp_to_jpeg(webp_path):
+    with Image.open(webp_path) as img:
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        img.save("cover.jpg", 'JPEG')
 
 yt_url = str(input("Video link = "))
 request = int(input("Audio/Video => 1/2 = "))
