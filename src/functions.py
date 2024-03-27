@@ -9,22 +9,11 @@ from PIL import Image
 from moviepy.editor import *
 
 def add_cover_image(audio_file, output_file):
-    # Load the audio file
     audio = AudioFileClip(audio_file)
-
-    # Create a video clip with the cover image
     cover_clip = ImageClip("./cover.jpg")
-
-    # Set the duration of the cover clip to match the duration of the audio
     cover_clip = cover_clip.set_duration(audio.duration)
-
-    # Set the audio of the cover clip to match the audio file
     cover_clip = cover_clip.set_audio(audio)
-
-    # Write the result to an MP3 file
     cover_clip.audio.write_audiofile(output_file, codec='mp3')
-
-    # Close the clips
     audio.close()
     cover_clip.close()
 
