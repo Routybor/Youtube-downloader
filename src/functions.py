@@ -24,9 +24,7 @@ def download_audio(url):
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
-        }],
-        'ffmpeg_location': './ffmpeg',
-        'ffprobe_location': './ffprobe',
+        }]
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
@@ -50,11 +48,11 @@ def audio_process(url):
             preview_download(url)
             preview_cleaner()
             cleaned_name = "./audio" + sub(pattern, '', file)
-            cover_change(cleaned_name)
             copy(file, cleaned_name)
+            cover_change(cleaned_name)
             remove(file)
     except Exception as e:
-        print(e, "\n\n\n\n!!!\n\n\n\n")
+        print(e)
 
 
 def preview_set(file):
