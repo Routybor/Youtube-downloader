@@ -5,18 +5,17 @@ from re import sub
 from yt_dlp import YoutubeDL
 from mutagen.id3 import ID3, APIC
 from PIL import Image
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC
 
-from moviepy.editor import *
 
-def add_cover_image(audio_file, output_file):
-    audio = AudioFileClip(audio_file)
-    cover_clip = ImageClip("./cover.jpg")
-    cover_clip = cover_clip.set_duration(audio.duration)
-    cover_clip = cover_clip.set_audio(audio)
-    cover_clip.audio.write_audiofile(output_file, codec='mp3')
-    audio.close()
-    cover_clip.close()
-
+def cover_change(mp3_file_path):
+    audio = MP3(mp3_file_path, ID3=ID3)
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=1, desc='32x32 icon', data=open('./cover.png','rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=2, desc='Icon', data=open('./cover.png','rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=3, desc='Cover (front)', data=open('./cover.png','rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=4, desc='Cover (back)', data=open('./cover.png','rb').read()))
+    audio.save()
 
 def download_audio(url):
     ydl_opts = {
@@ -24,8 +23,10 @@ def download_audio(url):
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
-            'preferredquality': '19F2',
+            'preferredquality': '192',
         }],
+        'ffmpeg_location': './ffmpeg',
+        'ffprobe_location': './ffprobe',
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
@@ -49,9 +50,9 @@ def audio_process(url):
             preview_download(url)
             preview_cleaner()
             cleaned_name = "./audio" + sub(pattern, '', file)
-            add_cover_image(file, cleaned_name)
-            # copy(file, cleaned_name)
-            # remove(file)
+            cover_change(cleaned_name)
+            copy(file, cleaned_name)
+            remove(file)
     except Exception as e:
         print(e, "\n\n\n\n!!!\n\n\n\n")
 
@@ -72,7 +73,7 @@ def preview_cleaner():
     files = listdir("./")
     for file in files:
         if file.startswith("maxresdefault [maxresdefault]") or file.startswith("sddefault [sddefault]"):
-            convert_webp_to_jpeg(file)
+            convert_webp_to_png(file)
             if not (path.isfile(file) and file.lower().endswith('.jpg')):
                 file_path = path.join("./", file)
                 remove(file_path)
@@ -85,8 +86,8 @@ def preview_download(url):
     ydl.download([thumbnail_url])
 
 
-def convert_webp_to_jpeg(webp_path):
+def convert_webp_to_png(webp_path):
     with Image.open(webp_path) as img:
         if img.mode != 'RGB':
             img = img.convert('RGB')
-        img.save("cover.jpg", 'JPEG')
+        img.save("cover.png", 'PNG')
