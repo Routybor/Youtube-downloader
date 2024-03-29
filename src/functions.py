@@ -11,11 +11,16 @@ from mutagen.id3 import ID3, APIC
 
 def cover_change(mp3_file_path):
     audio = MP3(mp3_file_path, ID3=ID3)
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=1, desc='32x32 icon', data=open('./cover.png','rb').read()))
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=2, desc='Icon', data=open('./cover.png','rb').read()))
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=3, desc='Cover (front)', data=open('./cover.png','rb').read()))
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=4, desc='Cover (back)', data=open('./cover.png','rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=1,
+                   desc='32x32 icon', data=open('./cover.png', 'rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=2,
+                   desc='Icon', data=open('./cover.png', 'rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=3,
+                   desc='Cover (front)', data=open('./cover.png', 'rb').read()))
+    audio.tags.add(APIC(encoding=0, mime='image/png', type=4,
+                   desc='Cover (back)', data=open('./cover.png', 'rb').read()))
     audio.save()
+
 
 def download_audio(url):
     ydl_opts = {
@@ -51,6 +56,7 @@ def audio_process(url):
             copy(file, cleaned_name)
             cover_change(cleaned_name)
             remove(file)
+            remove("cover.png")
     except Exception as e:
         print(e)
 
@@ -72,9 +78,8 @@ def preview_cleaner():
     for file in files:
         if file.startswith("maxresdefault [maxresdefault]") or file.startswith("sddefault [sddefault]"):
             convert_webp_to_png(file)
-            if not (path.isfile(file) and file.lower().endswith('.jpg')):
-                file_path = path.join("./", file)
-                remove(file_path)
+            file_path = path.join("./", file)
+            remove(file_path)
 
 
 def preview_download(url):
