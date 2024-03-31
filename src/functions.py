@@ -9,7 +9,7 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
 
 
-def cover_change(mp3_file_path):
+async def cover_change(mp3_file_path):
     audio = MP3(mp3_file_path, ID3=ID3)
     audio.tags.add(APIC(encoding=0, mime='image/png', type=1,
                    desc='32x32 icon', data=open('./cover.png', 'rb').read()))
@@ -22,7 +22,7 @@ def cover_change(mp3_file_path):
     audio.save()
 
 
-def download_audio(url):
+async def download_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
         'postprocessors': [{
@@ -35,7 +35,7 @@ def download_audio(url):
         ydl.download([url])
 
 
-def download_video(url):
+async def download_video(url):
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best',
         'outtmpl': '%(title)s.%(ext)s',
@@ -44,7 +44,7 @@ def download_video(url):
         ydl.download([url])
 
 
-def audio_process(url):
+async def audio_process(url):
     directory = './'
     pattern = r'\[.*?\]'
     mp3_files = glob(path.join(directory, "*.mp3"))
@@ -52,16 +52,17 @@ def audio_process(url):
         for file in mp3_files:
             preview_download(url)
             preview_cleaner()
-            cleaned_name = "./audio" + sub(pattern, '', file)
+            cleaned_name = "./media" + sub(pattern, '', file)
             copy(file, cleaned_name)
             cover_change(cleaned_name)
             remove(file)
             remove("cover.png")
+            return cleaned_name
     except Exception as e:
         print(e)
 
 
-def preview_set(file):
+async def preview_set(file):
     another = "./cover.jpg"
     matching_files = glob(another)
     with open(matching_files[0], 'rb') as f:
@@ -73,7 +74,7 @@ def preview_set(file):
         audio.save()
 
 
-def preview_cleaner():
+async def preview_cleaner():
     files = listdir("./")
     for file in files:
         if file.startswith("maxresdefault [maxresdefault]") or file.startswith("sddefault [sddefault]"):
@@ -82,14 +83,14 @@ def preview_cleaner():
             remove(file_path)
 
 
-def preview_download(url):
+async def preview_download(url):
     ydl = YoutubeDL()
     info_dict = ydl.extract_info(url, download=False)
     thumbnail_url = info_dict['thumbnail']
     ydl.download([thumbnail_url])
 
 
-def convert_webp_to_png(webp_path):
+async def convert_webp_to_png(webp_path):
     with Image.open(webp_path) as img:
         if img.mode != 'RGB':
             img = img.convert('RGB')
