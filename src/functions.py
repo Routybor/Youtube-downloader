@@ -1,7 +1,7 @@
 from glob import glob
-from os import path, remove, listdir
+from os import path, remove, listdir, makedirs
 from shutil import copy
-from re import sub
+from re import sub, search
 from yt_dlp import YoutubeDL
 from mutagen.id3 import ID3, APIC
 from PIL import Image
@@ -20,6 +20,15 @@ async def cover_change(mp3_file_path):
     audio.tags.add(APIC(encoding=0, mime='image/png', type=4,
                    desc='Cover (back)', data=open('./cover.png', 'rb').read()))
     audio.save()
+
+
+async def extract_video_id(url):
+    pattern = r'(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)'
+    match = search(pattern, url)
+    if match:
+        return match.group(1)
+    else:
+        return None
 
 
 async def download_audio(url):
@@ -50,11 +59,14 @@ async def audio_process(url):
     mp3_files = glob(path.join(directory, "*.mp3"))
     try:
         for file in mp3_files:
-            preview_download(url)
-            preview_cleaner()
-            cleaned_name = "./media" + sub(pattern, '', file)
+            await preview_download(url)
+            await preview_cleaner()
+            folder_name = "./media/" + await extract_video_id(url)
+            if not path.exists(folder_name):
+                makedirs(folder_name)
+            cleaned_name = folder_name + sub(pattern, '', file)
             copy(file, cleaned_name)
-            cover_change(cleaned_name)
+            await cover_change(cleaned_name)
             remove(file)
             remove("cover.png")
             return cleaned_name
@@ -78,7 +90,7 @@ async def preview_cleaner():
     files = listdir("./")
     for file in files:
         if file.startswith("maxresdefault [maxresdefault]") or file.startswith("sddefault [sddefault]"):
-            convert_webp_to_png(file)
+            await convert_webp_to_png(file)
             file_path = path.join("./", file)
             remove(file_path)
 
