@@ -11,22 +11,56 @@ from os import name
 from sys import stdin
 
 try:
-    import msvcrt  # Windows
+    import msvcrt
+    SYSTEM = "win"
 except ImportError:
-    import termios  # Unix-like systems
+    import termios
     import tty
+    SYSTEM = "unix"
 
 
-def getch():
-    try:
-        if name == 'nt':  # Windows
-            return msvcrt.getch().decode()
-        else:  # Unix-like systems
-            tty.setcbreak(stdin.fileno())
-            return stdin.read(1)
-    except Exception as e:
-        print(e)
+def menu_process():
+    while True:
+        print(f"{'='*8}\n  Menu\n{'='*8}")
+        print(
+            f"\033[92m1. Audio\033[0m\n\033[94m2. Video\033[0m\n\033[91me. Exit\033[0m\n")
+        print("Choose an option (1/2) = ", end='', flush=True)
+        choice = getch(SYSTEM)
+        if choice == 'e':
+            print()
+            exit()
+        if choice not in ['1', '2']:
+            print("\nInvalid choice. Please choose again.")
+            continue
+        print(choice)
+        link = input("Link = ")
+        mode = "Audio" if choice == '1' else "Video"
+        try:
+            process_link(link, mode)
+        except:
+            pass
+
+
+def getch(system):
+    if system == 'win':
+        try:
+            if name == 'nt':
+                return msvcrt.getch().decode()
+        except Exception as e:
+            print(e)
         return None
+    elif system == 'unix':
+        fd = stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            ch = stdin.read(1)
+        except Exception as e:
+            print(e)
+            return None
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
 
 def process_link(link, option):
@@ -36,6 +70,7 @@ def process_link(link, option):
         return audio_name
     elif option == "Video":
         download_video(link)
+
 
 def cover_change(mp3_file_path):
     audio = MP3(mp3_file_path, ID3=ID3)
