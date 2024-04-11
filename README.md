@@ -1,16 +1,16 @@
-**Project Name: YouTube-to-MP3-with-Cover**
+**Project Name: YouTube-Downloader**
 
 **Description:**
-This Python project allows users to convert YouTube videos into MP3 audio files while also embedding the video's cover image into the audio file. It utilizes the YouTube API for fetching video metadata and ffmpeg for audio extraction and cover embedding.
+This Python project allows download YouTube videos and MP3 audio from video and also set audio cover image from video preview frame.
 
 **Installation:**
 1. Clone the repository:
    ```
-   git clone https://github.com/your_username/YouTube-to-MP3-with-Cover.git
+   git clone https://github.com/Routybor/Youtube-downloader.git
    ```
 2. Navigate to the project directory:
    ```
-   cd YouTube-to-MP3-with-Cover
+   cd YouTube-downloader
    ```
 3. Install the required Python packages:
    ```
@@ -29,13 +29,13 @@ This Python project allows users to convert YouTube videos into MP3 audio files 
      ```
 
 **Usage:**
-1. Run the Python script `youtube_to_mp3_with_cover.py`:
+1. Run the Python script `main.py`:
    ```
-   python youtube_to_mp3_with_cover.py
+   python main.py
    ```
 2. Enter the YouTube video link when prompted.
 3. The script will download the video, extract its audio, fetch its cover image, and embed the cover image into the MP3 audio file.
-4. The MP3 file with the cover image embedded will be saved in the project directory.
+4. The MP3 file with the cover image embedded will be saved in the media/ directory.
 
 **Requirements:**
 - Python 3.x
