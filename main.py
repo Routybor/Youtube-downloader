@@ -1,8 +1,8 @@
-from src.functions import menu_process
+from src.menu_processor import show_menu
 
 
 def main():
-    menu_process()
+    show_menu()
 
 
 if __name__ == "__main__":
