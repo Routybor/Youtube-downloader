@@ -1,7 +1,7 @@
 from glob import glob
 from os import path, remove, listdir, makedirs
 from shutil import copy
-from re import sub, search
+from re import sub, compile
 from yt_dlp import YoutubeDL
 from mutagen.id3 import ID3, APIC
 from PIL import Image
@@ -10,13 +10,13 @@ from mutagen.id3 import ID3, APIC
 
 
 def audio_forming(url):
+    download_audio(url)
     directory = './'
     pattern = r'\[.*?\]'
     mp3_files = glob(path.join(directory, "*.mp3"))
     try:
         for file in mp3_files:
-            preview_download(url)
-            preview_forming()
+            preview_forming(url)
             folder_name = "./media/" + extract_video_id(url)
             if not path.exists(folder_name):
                 makedirs(folder_name)
@@ -42,7 +42,8 @@ def preview_set(file):
         audio.save()
 
 
-def preview_forming():
+def preview_forming(url):
+    preview_download(url)
     files = listdir("./")
     for file in files:
         if file.startswith("maxresdefault [maxresdefault]") or file.startswith("sddefault [sddefault]"):
@@ -67,14 +68,12 @@ def webp_to_png(webp_path):
 
 def cover_set(mp3_file_path):
     audio = MP3(mp3_file_path, ID3=ID3)
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=1,
-                   desc='32x32 icon', data=open('./cover.png', 'rb').read()))
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=2,
-                   desc='Icon', data=open('./cover.png', 'rb').read()))
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=3,
-                   desc='Cover (front)', data=open('./cover.png', 'rb').read()))
-    audio.tags.add(APIC(encoding=0, mime='image/png', type=4,
-                   desc='Cover (back)', data=open('./cover.png', 'rb').read()))
+    cover = open('./cover.png', 'rb').read()
+    mtype = 'image/png'
+    audio.tags.add(APIC(encoding=0, mime=mtype, type=1, desc='32x32 icon', data=cover))
+    audio.tags.add(APIC(encoding=0, mime=mtype, type=2, desc='Icon', data=cover))
+    audio.tags.add(APIC(encoding=0, mime=mtype, type=3, desc='Cover (front)', data=cover))
+    audio.tags.add(APIC(encoding=0, mime=mtype, type=4, desc='Cover (back)', data=cover))
     audio.save()
 
 
@@ -88,12 +87,13 @@ def download_audio(url):
         }]
     }
     with YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+        ydl.download([extract_video_id(url)])
 
 
 def extract_video_id(url):
-    pattern = r'(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)'
-    match = search(pattern, url)
+    regex = compile(
+        r'(?:youtu\.be\/|youtube\.com(?:\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=|shorts\/)|youtu\.be\/|embed\/|v\/|m\/|watch\?(?:[^=]+=[^&]+&)*?v=))([^"&?\/\s]{11})')
+    match = regex.search(url)
     if match:
         return match.group(1)
     else:

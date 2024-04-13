@@ -1,7 +1,7 @@
-from re import search
 from os import name
 from sys import stdin
-from .audio_processor import download_audio, audio_forming
+
+from .audio_processor import audio_forming
 from .video_processor import download_video
 
 class GetChar():
@@ -34,7 +34,7 @@ try:
 except ImportError:
     import termios
     import tty
-    scan_char.unix
+    scan_char = GetChar.unix
 
 
 def show_menu():
@@ -51,19 +51,14 @@ def show_menu():
             print("\nInvalid choice. Please choose again.")
             continue
         print(choice)
-        link = input("Link = ")
-        mode = "Audio" if choice == '1' else "Video"
+        url = input("Link = ")
         try:
-            process_link(link, mode)
+            process_link(url, choice)
         except:
             pass
 
-def process_link(link, option):
-    if option == "Audio":
-        download_audio(link)
-        audio_name = audio_forming(link)
-        return audio_name
-    elif option == "Video":
-        download_video(link)
-
-
+def process_link(url, option):
+    if option == '1':
+        return audio_forming(url)
+    elif option == '2':
+        return download_video(url)
