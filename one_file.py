@@ -29,7 +29,7 @@ def audio_forming(url):
     try:
         for file in mp3_files:
             preview_forming(url)
-            folder_name = "./Music/"
+            folder_name = "./media/" + extract_video_id(url)
             if not path.exists(folder_name):
                 makedirs(folder_name)
             cleaned_name = folder_name + sub(pattern, "", file)
