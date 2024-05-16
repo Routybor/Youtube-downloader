@@ -9,7 +9,17 @@ from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
 
 
-def audio_forming(url, dir):
+def audio_forming(url: str, dir: str) -> str:
+    """
+    Downloads audio from youtube and forms audio preview
+
+    Args:
+        url (str): video url
+        dir (str): base directory to download video
+
+    Returns:
+        str: cleaned name of audio file
+    """
     download_audio(url=url)
     directory = "./"
     pattern = r"\[.*?\]"
@@ -17,7 +27,7 @@ def audio_forming(url, dir):
     try:
         for file in mp3_files:
             preview_forming(url=url)
-            folder_name = dir + "\\" +  extract_video_id(url=url)
+            folder_name = dir + "\\" + extract_video_id(url=url)
             if not path.exists(path=folder_name):
                 makedirs(name=folder_name)
             cleaned_name = folder_name + sub(pattern=pattern, repl="", string=file)
@@ -30,19 +40,13 @@ def audio_forming(url, dir):
         print(e)
 
 
-def preview_set(file):
-    another = "./cover.jpg"
-    matching_files = glob(pathname=another)
-    with open(file=matching_files[0], mode="rb") as f:
-        data = f.read()
-        apic = APIC(3, "image/jpeg", 3, "Front cover", data=data)
-        audio = ID3(file)
-        audio.delall(key="APIC")
-        audio.add(frame=apic)
-        audio.save()
+def preview_forming(url: str) -> None:
+    """
+    Genetas suitable preview image file to set on mp3 track
 
-
-def preview_forming(url):
+    Args:
+        url (str): video url
+    """
     preview_download(url=url)
     files = listdir(path="./")
     for file in files:
@@ -54,21 +58,39 @@ def preview_forming(url):
             remove(path=file_path)
 
 
-def preview_download(url):
+def preview_download(url: str) -> None:
+    """
+    Downloads preview from youtube
+
+    Args:
+        url (str): video url
+    """
     ydl = YoutubeDL()
-    info_dict = ydl.extract_info(url, download=False)
+    info_dict = ydl.extract_info(url=url, download=False)
     thumbnail_url = info_dict["thumbnail"]
     ydl.download(url_list=[thumbnail_url])
 
 
-def webp_to_png(webp_path):
+def webp_to_png(webp_path: str) -> None:
+    """
+    Converts webp image to png
+
+    Args:
+        webp_path (str): path of downloaded preview
+    """
     with Image.open(fp=webp_path) as img:
         if img.mode != "RGB":
             img = img.convert(mode="RGB")
         img.save(fp="cover.png", format="PNG")
 
 
-def cover_set(mp3_file_path):
+def cover_set(mp3_file_path: str) -> None:
+    """
+    Adds png cover to mp3 track
+
+    Args:
+        mp3_file_path (str): path of downloaded mp3 file
+    """
     audio = MP3(mp3_file_path, ID3=ID3)
     cover = open(file="./cover.png", mode="rb").read()
     mtype = "image/png"
@@ -83,7 +105,13 @@ def cover_set(mp3_file_path):
     audio.save()
 
 
-def download_audio(url):
+def download_audio(url: str) -> None:
+    """
+    Downloads audio from youtube
+
+    Args:
+        url (str): video url
+    """
     ydl_opts = {
         "format": "bestaudio/best",
         "postprocessors": [
@@ -98,7 +126,16 @@ def download_audio(url):
         ydl.download(url_list=[extract_video_id(url=url)])
 
 
-def extract_video_id(url):
+def extract_video_id(url: str) -> str | None:
+    """
+    Use patterns to remove excess information from link
+
+    Args:
+        url (str): "dirty" video link (may be clean)
+
+    Returns:
+        str | None: cleaned video link(url)
+    """
     regex = compile(
         pattern=r'(?:youtu\.be\/|youtube\.com(?:\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=|shorts\/)|youtu\.be\/|embed\/|v\/|m\/|watch\?(?:[^=]+=[^&]+&)*?v=))([^"&?\/\s]{11})'
     )
