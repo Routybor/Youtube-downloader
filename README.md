@@ -45,8 +45,5 @@ This Python project allows download YouTube videos and MP3 audio from video and 
 **Contributing:**
 Contributions are welcome! If you want to contribute to this project, feel free to fork the repository, make your changes, and submit a pull request.
 
-**License:**
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
 **Disclaimer:**
-This project is intended for personal use only. Respect copyright laws and terms of service of YouTube when using this tool. The developers of this project are not responsible for any misuse of this tool.
+This project is intended for educational use only. Respect copyright laws and terms of service of YouTube when using this tool. The developers of this project are not responsible for any misuse of this tool.
