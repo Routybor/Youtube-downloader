@@ -27,8 +27,8 @@ def audio_forming(url: str, dir: str) -> str:
     try:
         for file in mp3_files:
             preview_forming(url=url)
-            folder_name = dir + "\\" + extract_video_id(url=url)
-            if not path.exists(path=folder_name):
+            folder_name = dir + "/" + extract_video_id(url=url)
+            if not path.exists(folder_name):
                 makedirs(name=folder_name)
             cleaned_name = folder_name + sub(pattern=pattern, repl="", string=file)
             copy(src=file, dst=cleaned_name)
